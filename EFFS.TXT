@@ -1,0 +1,28 @@
+; clear the VIDEO screen 
+;
+; under CC BY NC SA creative commons 4.0 pascaldagornet at yahoo dot de
+; https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.en
+;
+; modules required: HPIL, VIDEO80
+; input: none
+; output: none
+; T and alpha destroyed, 2 chars remains in it
+; no other register used
+; remark: ; if FS? 15, RTN will be seen on the screen after the reset
+;
+; cd /home/user/programming/hp41
+; wine "/home/user/.wine/drive_c/Program Files (x86)/HP-Emulators/HP41UC/hp41uc.exe" /t=EFFS.TXT /r /k
+;
+; change log
+; 18 Nov 2025   Released
+;
+LBL 'EFFS'
+CLA
+27
+XTOA
+RDN
+69
+XTOA
+RDN
+ACA ; this sends the sequence in one go
+RTN

@@ -1,0 +1,68 @@
+; put the time into the VIDEO80 screen at bottom right
+; then put the cursor top left
+;
+; under CC BY NC SA creative commons 4.0 pascaldagornet at yahoo dot de
+; https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.en
+;
+; modules required: TIME, HPIL, VIDEO80
+; input: none
+; output: time on the screen
+; RPN stack and alpha destroyed
+; no register used
+;
+; first..
+; set the time HH.MMSShh SETIME
+;   13.07 SETIME
+; set the date MM.DDYYYY SETDATE
+;   11.162025 SETDATE
+;
+; cd /home/user/programming/hp41
+; wine "/home/user/.wine/drive_c/Program Files (x86)/HP-Emulators/HP41UC/hp41uc.exe" /t=TTS.TXT /r /k
+;
+; change log
+; 18 Nov 2025   Released
+;
+LBL 'TTS'
+; eventually XEQ "EFFS" to clear the screen there before
+CLA
+;SF 25
+CLK24
+;
+; dont test the presence of TIME module for saving space
+;FS?C 25
+;GTO 01
+;RTN
+;LBL 01
+;
+; put cursor middle bottom
+27
+XTOA
+37
+XTOA
+58
+XTOA
+22
+XTOA
+ACA
+;
+CLA
+TIME
+ATIME
+"` "
+DATE
+ADATE
+ACA
+;
+; put cursor top left
+CLA
+27
+XTOA
+37
+XTOA
+0
+XTOA
+0
+XTOA
+ACA
+;
+RTN
