@@ -1,0 +1,53 @@
+; calculate lambert W function
+; https://en.wikipedia.org/wiki/Lambert_W_function#Numerical_evaluation
+;
+; new variant
+; WN = (Wn/(1+Wn))*(1+ x * exp(-Wn))
+; WN new calculated lambert value
+; Wn previous value in the iteration
+;
+; under CC BY NC SA creative commons 4.0 pascaldagornet at yahoo dot de
+; https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.en
+;
+; modules required: none
+; input: lambert start value in X and variable for which lambda will be calculated in Y
+; output: new lambert value in X after 1 iteration
+; RPN stack destroyed
+; no register used
+;
+; cd /home/user/programming/hp41
+; wine "/home/user/.wine/drive_c/Program Files (x86)/HP-Emulators/HP41UC/hp41uc.exe" /t=LW0.TXT /r /k
+; then upload the raw file of it into V41
+; store the program into a drive with XEQ WRTP
+;
+; test
+; V41 (Sandmath)
+; 5 XEQ WL0
+; 1.326724665
+; .. now with LW0
+; 5 ENTER
+; 1.13355 (which will give a start value)
+; XEQ LW0
+; R/S R/S.. will move to the value 1.326724665
+;
+; change log
+; 18 Nov 2025   Released
+;
+LBL "LW0"
+;       X            Y            Z          T        L
+; stack at start..
+;       Wn           X
+ENTER ; Wn           Wn           X
+CHS   ; -Wn          Wn           X
+E^X   ; exp(-Wn)     Wn           X
+RCL Z ; X            exp(-Wn)     Wn         X
+*     ; X*exp(-Wn)   Wn           X          X
+E     ; 1            X*exp(-Wn)   Wn         X
++     ; 1+X*exp(-Wn) Wn           X          X
+X<>Y  ; Wn           1+X*exp(-Wn) X          X
+*     ; Wn*(1+X*exp(-Wn))   X     X          X       Wn 
+LASTX ; Wn   Wn*(1+X*exp(-Wn))    X          X 
+E     ; 1     Wn     Wn*(1+X*exp(-Wn))       X 
++     ; Wn+1  Wn*(1+X*exp(-Wn))   X          X 
+/     ; WN           X..
+RTN
