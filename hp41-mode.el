@@ -27,9 +27,11 @@
 ;; start emacs with
 ;;   emacs /home/userXYZ/ELPER.hp41
 ;; or
-;;   emacs -debug-init /home/userXYZ/ELPER.hp41
+;;   emacs -debug-init /home/userXYZ/ELPER.hp41    ; debugging this init hp41-mode.el file if emacs found it
 ;; or
 ;;   emacs  -q --load '/home/userXYZ/.emacs.d/hp41-mode.el' /home/userXYZ/ELPER.hp41 
+;; or
+;;   emacs  -q --load '/home/userXYZ/.emacs.d/hp41-mode.el' /home/userXYZ/ELPER.hp41  /home/userXYZ/file2.hp41  --eval "(view-files-in-windows)"
 ;; 
 ;; TODO:
 ;; [ ] test test test..
@@ -45,6 +47,41 @@
 ;; change log
 ;; 2025.12.24 Creation
 ;; 2025.12.26 Upload Github
+;; 2025.12.28 GTO instead of GOTO; dark mode
+;; YYYY.MM.DD
+;; YYYY.MM.DD
+;; YYYY.MM.DD
+;;
+;; added 2025.12.28 it creates now a dark mode
+;; takes it out if you wish a light mode
+;; >>>>>
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(column-number-mode t)
+ '(custom-enabled-themes '(misterioso))
+ '(display-line-numbers-type 'relative)
+ '(global-display-line-numbers-mode t)
+ '(line-number-mode nil)
+ '(package-selected-packages '(debbugs ahungry-theme ztree)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+;; <<<<<
+;;
+;; >>>>>
+;; https://superuser.com/questions/292865/how-to-open-more-than-2-files-in-a-single-emacs-frame
+ (defun view-files-in-windows ()
+  (ibuffer)                      ; Activate ibuffer mode.
+  (ibuffer-mark-special-buffers) ; Mark the special buffers.
+  (ibuffer-toggle-marks)         ; Toggle buffers, leaving the non-special ones
+  (ibuffer-do-view))             ; Show each buffer in a different window.
+;; <<<<<
 ;;
 ;; 1. Define a custom face for HP-41 specific registers
 (defface hp41-register-face
@@ -107,7 +144,7 @@
          (hepax '("HEPAX" "HFS" "HWM" "HSAVE"
          ))
          ;; Flow control and labels
-         (control '("LBL" "GOTO" "XEQ" "RTN" "STOP" "END" "AVIEW" "VIEW" 
+         (control '("LBL" "GTO" "XEQ" "RTN" "STOP" "END" "AVIEW" "VIEW" 
          "AON"" ADV" "AOFF" "PSE" "PROMPT" "ASN" 
          "BEEP" "BST" "CAT" "CLD" "CLP" "CLs" "COPY" 
          "D-R" "DEC" "DEG" "DEL" "ENG" "FIX" "GRAD" "OCT" "OFF" "ON" 
