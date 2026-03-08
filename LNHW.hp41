@@ -1,0 +1,104 @@
+; LN with Hurwitz method
+; https://de.wikipedia.org/wiki/Logarithmus#Berechnung_des_Logarithmus
+; https://de.wikipedia.org/wiki/Logarithmus#Grenzwerte_nach_Hurwitz
+;
+; creator pascaldagornet at yahoo dot de
+; Copyright CC BY-NC-SA 4.0
+; https://creativecommons.org/licenses/by-nc-sa/4.0/
+;
+; calculate ln(X). infinite iteration within boundaries.
+; stop of the iteration depending of the precision.
+;
+; calculus
+; X0 = X             value to be tracked
+; a0 = 1             value to be tracked
+; .. checks
+; if X<=0 .. go out
+; if X=1  .. result zero 
+; if X<1  .. change X=1/X  then later CHS the result
+; .. start loop
+; bn = (1-1/Xn)*an
+; cn=bn*Xn
+; .. update values for next loop
+; an+1 = 2*an     
+; Xn+1 = sqrt(Xn)
+; .. test ABS(cn - bn) < precision ?
+; .. end loop
+;
+; input  in Y, precision to be achieved
+;        in X, value where..
+; Result in X, LN(X)
+;        in Y, number of iterations
+; rest of the stack destroyed
+; R00 .. R03 used
+; changes
+; 07 03 2026 creation
+;
+; test
+; 5 ln fix 9
+; x: 1.609437912          ; 9 digits after .
+; 0.00001 5 XEQ "LNHW"    ; 5 d after .
+; 1.60944..               ; 5 d after .
+;
+LBL "LNHW"
+CF 00
+; Value in X
+; Precision in Y
+;                   X   Y   Z   T
+;                   X   p
+STO 03           ;  X into R03
+X<>Y             ;  p   X
+STO 00           ;  p into R00
+0
+STO 01           ;  0 into n counter = R01
+RCL Z            ;  X
+X<=0?
+RTN              ;  no calculation
+1                ;  1   X   p
+STO 02           ;  a0 into R02
+X<=Y?           
+SF 00            ;  SF00 mean X >1
+RDN              ;  X   p
+FS? 00           
+GTO 01           
+1/X              ;  X<1 means we go with 1/X and later change to -ln
+STO 03
+;
+; main loop from here
+LBL 01           ;  Xn
+ISG 01           ;  increase the loop counter
+""
+RCL 03           ;  Xn
+1/X              ;  1/Xn 
+LASTX            ;  Xn    1/Xn
+X<>Y             ;  1/Xn  Xn 
+CHS              ; -1/Xn  Xn
+1                ; 1     -1/Xn  Xn
++                ; 1-1/Xn  Xn
+RCL 02           ; an    1-1/Xn   Xn
+*                ; bn   Xn
+RCL X            ; bn   bn   Xn
+RCL Z            ; Xn    bn    bn    Xn
+*                ; cn    bn     Xn   Xn
+STO T            ; cn    bn     Xn   cn
+-                ; (bn-cn)  Xn  cn  cn
+ABS              ; ABS(bn-cn)  Xn   cn   cn
+X<>Y
+SQRT             
+STO 03
+RDN
+2                ;  2
+ST* 02 
+RDN              ;  ABS(bn-cn)  cn         
+;
+RCL 00           ; p    ABS(bn-cn)  cn
+X<=Y?
+GTO 01
+;
+RCL Z
+RCL 01             ; recall loop counter
+X<>Y               ; bn   n
+FS?C 00
+RTN
+CHS
+RTN
