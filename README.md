@@ -3,5 +3,5 @@ TTS: put time at the bottom right of a VIDEO80 screen and the cursor at the top 
 EFFS: clear the screen VIDEO80 and put the cursor at top left;  
 LW0: lambert W function as iterated function (variant of the wikipedia in "numerical evaluation". now with exponential instead of log. start values has to be adapted);  
 LNHW: logarithm as iterated function; 
-AGM: arithmetic geometric mean
+AGM: arithmetic geometric mean;
 hp41-mode.el: allow editing of HP41 text files with RPN syntax highlighting by using emacs
