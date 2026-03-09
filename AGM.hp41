@@ -1,0 +1,52 @@
+; AGM
+; https://en.wikipedia.org/wiki/Arithmetic%E2%80%93geometric_mean
+; https://goodcalculators.com/arithmetic-geometric-mean-calculator/
+; 3 5 Arithmetic-Geometric Mean = 3.9362355
+;
+; creator pascaldagornet at yahoo dot de
+; Copyright CC BY-NC-SA 4.0
+; https://creativecommons.org/licenses/by-nc-sa/4.0/
+;
+; stop depending of the programmed precision.
+;
+; input  in Y, b
+;        in X, a
+; Result in X, AGM(a,b)
+; rest of the stack destroyed
+; ALPHA used
+; no register used
+;
+; changes
+; 09 03 2026 creation
+;
+; test in cc41; see https://github.com/CraigBladow/cc41
+; 3 5 xeq "AGM"
+; x: 3.936235508 y:0.000000010 z:0.000000008 t:3.936235499 l:0.000000008 a: 
+;
+LBL "AGM" 
+; a in X
+; b in Y            X         Y     Z     T
+LBL 01           ;  a         b
+STO Z            ;  a         b     a
+X<>Y             ;  b         a     a
+ST+ Z            ;  b         a     a+b
+*                ;  ba        a+b
+SQRT             ;  sqrt(ba)  a+b
+X<>Y
+2
+/                ;  (a+b)/2   sqrt(ab)
+;                   a         b
+;
+STO Z            ;  a         b      a
+RCL Y            ;  b         a      b     a
+-                ;  a-b       b      a     a
+ABS              ;  |b-a|     b      a     a
+1E-08            ;  1E-8      |b-a|  b     a
+X>Y?
+GTO 02
+RDN
+RDN              ;  b         a
+GTO 01
+LBL 02
+R^
+RTN
