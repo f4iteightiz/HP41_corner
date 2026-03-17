@@ -1,0 +1,96 @@
+; EXP with Hurwitz method
+; Inversion of logarithm
+; https://de.wikipedia.org/wiki/Logarithmus#Berechnung_des_Logarithmus
+; https://de.wikipedia.org/wiki/Logarithmus#Grenzwerte_nach_Hurwitz
+;
+; creator pascaldagornet at yahoo dot de
+; Copyright CC BY-NC-SA 4.0
+; https://creativecommons.org/licenses/by-nc-sa/4.0/
+;
+; calculate E^X. infinite iteration within boundaries.
+; stop of the iteration depending of the precision.
+;
+; calculus
+; X0 = X             value to be tracked
+; a0 = 1             value to be tracked
+; .. checks
+; none so far
+; 
+; .. start loop
+; bn = (1+Xn)^an
+; cn = (1/(1-Xn))^an
+; .. update values for next loop
+; an+1 = 2*an
+; Xn+1 = Xn/2
+; .. test ABS(cn - bn) < precision ?
+; .. end loop
+;
+; input  in Y, precision to be achieved
+;        in X, value where..
+; Result in X, EXP(X)
+;        in Y, number of iterations
+; rest of the stack destroyed
+; R00 .. R03 used
+; changes
+; 16 03 2026 creation
+; 17 03 2026 tested / released
+;
+; test
+; 5 E^X fix 9
+; x: 148.413159103                               ; 9 digits after .
+; 0.00001 5 XEQ "EXPHW"                          ; 5 d after .
+; x: 148.413175873 y:30.000000000 z:0.000010..   ; 5 d after .
+; 148.. is the result achieved after 30 steps
+;
+LBL "EXPHW"
+; Value     in X
+; Precision in Y
+;                  X   Y   Z   T
+;                  X   p
+STO 03           ; X into R03
+X<>Y             ; p   X
+STO 00           ; p into R00
+CLX              ; 0   X
+STO 01           ; 0 into n counter = R01
+STO 02           ; 0 into a0
+ISG 02           ; a0=1 into R02
+""
+; main loop from here
+LBL 01
+ISG 01           ; increase the loop counter
+""
+RCL 03           ; Xn
+STO Y            ; Xn    Xn
+1
+-                ; Xn-1  Xn
+CHS              ; 1-Xn  Xn
+X=0?
+GTO 02
+1/X              ; (1/(1-Xn))   Xn
+RCL 02           ; an        (1/(1-Xn))   Xn
+Y^X              ; cn=(1/(1-Xn))^an   Xn
+RCL Y            ; Xn   cn   Xn
+1
++                ; 1+Xn  cn   Xn
+RCL 02           ; an    1+Xn  cn   Xn
+Y^X              ; bn     cn     Xn      Xn
+2                
+ST/ 03           ; Xn+1 = Xn/2
+ST* 02           ; an+1 = an*2
+RDN              ; bn     cn     Xn      2
+STO T            ; bn     cn     Xn      bn
+-                ; (bn-cn)   Xn    bn    bn
+ABS              ; ABS(bn-cn)  Xn   bn   bn
+RCL 00           ; p    ABS(bn-cn)  Xn   bn
+X<=Y?
+GTO 01
+R^               ; bn   
+RCL 01           ; recall loop counter
+X<>Y             ; bn   n
+RTN              ; end
+LBL 02           ; loop in case 1-X = 0
+2                
+ST/ 03
+ST* 02
+GTO 01
+RTN
