@@ -1,0 +1,112 @@
+; file TETS.HP41
+; use emacs and cc41 for editing/testing/debugging
+;
+; Title: Tetration calculation via infinite series calculation
+;        see https://en.wikipedia.org/wiki/Tetration
+;        This is the inverse function of X^(1/X)
+;
+; Scope: For evaluation X^X^X^X.. 
+;        infinite (stop when the programm dont see a
+;        difference of 1E-8 between 2 steps
+;        no result/convergence for x<= 1/e 
+;        take long calc time (or many steps) around x=e, around x=1/e
+;        else the result is out quite quick
+;
+;        .. for what..?
+;        look at relation with infinite calc for elliptique
+;           curve calculation
+;        look at gamma between 1 and 2
+;
+; Output: the result in X
+;         the number of calculation steps in Y
+;
+; Inputs: Value in X then XEQ TETS
+;
+; Recommendation: put these outputs into desmos.com for visualization
+;
+; Typical screen/printer output: none so far included here
+;
+; HP41 preferred specification: none
+;
+; Used modules functions: none
+;
+; Alternative modules functions: NA
+;
+; Required devices: none
+;
+; Registers impacted:
+;  R00  step counter for achieving the precision
+; under CC BY SA CreativeCommons 4.0 floppy from https://www.hpmuseum.org/forum/
+;
+; Change log:
+;  2022 12 26 creation
+;  2022 12 26 update description For evaluation A=x^(1/x); A^A^A^A.. 
+;  2026 03 18 simplify for tetration X^X^X^X
+;             (the user to put what he want in X.. X^(1/X).. or others)
+;  YYYY MM DD ...... what was changed
+;
+; Remarks to how/what to improve the code: stack only?
+;
+; Remarks to how/what improve in the HP41 functionality: 
+;  use straight the lambert function (not tested)
+;
+LBL "TETS"
+0       ; 0       X0
+STO 00  ; step counter initialized
+RDN     ; X0
+;
+; test   X0 => e^(-e)   x: 0.065988036    and 
+;        X0 <= e^(1/e)  x: 1.444667861
+;        else OUT OF RANGE
+;
+STO Y
+STO Z
+1
+E^X
+ENTER
+CHS
+Y^X     ; e^(-e)   X0    X0   X0
+X>Y?
+GTO 01
+CLX
+1
+E^X
+ENTER
+1/X
+Y^X
+X<Y?
+GTO 01
+X<>Y
+;
+STO Z   ; X0      xx    X0    xx
+STO T   ; X0      xx    X0    X0
+;
+LBL 00  ; start main loop
+RDN
+RDN
+X<>Y    ; Xn      X0
+RCL Y   ; X0      Xn     X0
+RCL Y   ; Xn      X0     Xn      X0
+Y^X     ; Xn+1    Xn     X0      X0
+ISG 00
+""
+; VIEW X  ; just show the evolution of the calculation at the screen
+X<>Y    
+STO T   ; Xn       Xn+1    X0     Xn
+X<>Y    ; Xn+1      Xn     X0     Xn
+-       ; Xn-Xn+1   X0     Xn     Xn
+LASTX   ; Xn+1   Xn-Xn+1   X0     Xn
+STO T   ; Xn+1   Xn-Xn+1   X0     Xn+1
+RDN     ; Xn-Xn+1   X0     Xn+1   Xn+1
+ABS     ; ABS(Xn+1-Xn)  X0  Xn+1   Xn+1
+.00000001 ; 0.00001  ABS(Xn+1-Xn)   X0    Xn+1
+X<=Y?
+GTO 00
+R^
+RCL 00
+X<>Y
+RTN
+LBL 01
+"OUT OF RANGE"
+AVIEW
+RTN
