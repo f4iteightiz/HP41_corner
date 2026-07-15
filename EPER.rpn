@@ -1,0 +1,93 @@
+; Ellipse perimeter calculation according ultimate formula
+; https://semjonadlaj.com/Excerpts/QuarterMillennium.pdf
+;
+; file EPER.rpn
+; edit it with ..
+; emacs  -q --load '~/hp41-mode.el' /mnt/c/Users/UserXXX/Desktop/HP41/EPER.rpn &
+; hp41-mode.el from https://github.com/f4iteightiz/HP41_corner/blob/main/hp41-mode.el
+;
+; under CC BY NC SA CreativeCommons 4.0 pascaldagornet at gmail dot com
+; https://creativecommons.org/licenses/by-nc-sa/4.0/deed.en
+;
+; change log
+;  2026 07 13 creation
+;  2026 07 15 test & release
+;
+; verification with a calculator https://www.mathsisfun.com/geometry/ellipse-perimeter.html
+;
+; run and test with..
+; rlwrap ./cc41/cc41 -L /mnt/c/Users/UserXXX/Desktop/HP41/EPER.rpn
+; .. where cc41 is from https://github.com/CraigBladow/cc41
+; 6.0 10.0 GTO "PERIM"
+; x: 10.0000 y:6.0000 z:0.0000 t:0.0000 l:0.0000 a:
+; sst
+; 01 lbl "PERIM"
+; x: 10.0000 y:6.0000 z:0.0000 t:0.0000 l:0.0000 a:
+; sst..
+; sst..
+;
+; or..
+; 10.0 6.0 XEQ "PERIM"
+; x: 51.0540 y:1.0000 z:1.0000 t:1.0000 l:0.8125 a:
+;
+; 6.0 10.0 XEQ "PERIM"
+; x: 51.0540 y:1.0000 z:1.0000 t:1.0000 l:1.3542 a:
+;
+;              X    Y   Z   T
+LBL "PERIM"  ; b    a   ..  ..
+X=0?         ; b==0
+GTO 01       ; resume
+X<>Y         ; a    b   ..  ..
+STO 00       ; a in R00  
+X=0?
+GTO 01
+/            ; b / a
+SQRT         ; sqrt(b / a)
+STO 01       ; s0 = sqrt(b / a)   ... sX in R01
+STO 02       ; q0 = s0            ... qX in R02
+0            ; 0           q0
+STO 03       ; r0 = 0             ... rX in R03
+X<>Y         ; q0          r0
+LBL 00       ; while loop
+;              X           Y            Z            T
+1            ; 1           qn
+RCL 01       ; sn          1            qn
+X=Y?         ; sn == 1
+GTO 02       ; resume
+ENTER        ; sn          sn           1            qn
+1/X          ; 1/sn  sn
++            ; sn + 1/sn    1           qn           qn
+2            ; 2            sn + 1/sn   1            qn
+/            ; (s + 1/s)/2  1           qn           qn
+SQRT         ; sN=sqrt((sn + 1/sn)/2) 1  qn          qn
+STO 01       ; sN into R01
+2            ; 2            sN          1            qn
+*            ; 2*sN         1           qn           qn
+R^           ; qn           2*sN         1           qn
+*            ; qN = qn*2*sN  1           qn          qn 
+R^           ; qn           qN          1           qn
+RCL 03       ; rn           qn          qN           1
++            ; qn+rn         qN         1            1
+RCL 01       ; sN           qn+rn       qN           1
+/            ; rN = (qn + rn) / sN     qN            1
+STO 03       ; rN into R03
+RDN          ; qN           1           1            1
+STO 02       ; qN into R02
+GTO 00       ; while
+LBL 02       ; resume
+2            ; 2
+PI           ; PI   2
+*            ; 2 * PI
+RCL 00       ; a            2*PI   
+*            ; a*2*PI 
+RCL 02       ; q        2 * PI * a
+RCL 03
+-
+*            ; 2 * PI * a * (q - r)
+RTN
+;
+LBL 01
++
+4
+*
+RTN
