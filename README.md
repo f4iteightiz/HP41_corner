@@ -5,6 +5,7 @@ LNHW: logarithm as iterated function;
 EXPHW: exponential as iterated function;    
 AGM: arithmetic geometric mean;    
 ELPER.hp41 : ellipse perimeter;     
+EPER.hp41 : ellipse perimeter, ultimate formula;     
 TETS.HP41: infinite tetration function; inverse of X^(1/X);     
 hp41-mode.el: allow editing of HP41 text files with RPN syntax highlighting by using emacs;    
 HP41edidebug.sh: script for starting emacs and cc41 for easy development and debugging
