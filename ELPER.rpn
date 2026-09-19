@@ -108,9 +108,8 @@ X<> Z           ;  (an+bn)/2                bN                    bN         (an
 STO 00          ;  aN                       bN                    bN         aN
 -
 ABS  
-0.000000001
-X<>Y            ; |aN-bN|                  1.0E-10                bN         aN
-X<Y?
+1.0E-12         ;      1.0E-12        |aN-bN|                     bN         aN
+X>Y?            ;    emacs should show this in red
 SF 00
 R^
 R^
@@ -137,7 +136,6 @@ X<>Y
 2
 /                ; (a+b)/2  SQRT(ab)  b   b
 ;                    =a        =b   below..
-;X#Y?            ; using this comparison here will show convergence issues
 FC?C 00
 GTO 01
 RTN
