@@ -1,0 +1,150 @@
+; Ellipse perimeter calculation according MAGM and AGM
+; ELPER.rpn
+;
+; under CC BY SA CreativeCommons 4.0 floppy @ https://www.hpmuseum.org
+;
+; change log
+;  2023 04 16 creation
+;  2026 09 19 review due to convergence issue with MAGM
+;
+; verification https://www.mathsisfun.com/geometry/ellipse-perimeter.html
+; 
+; Register overwritten
+;   00  a then later a**2..
+;   01  b then later b**2..
+;   02  zn   parameter
+;   03  AGM  temporary result
+;
+; edit in a terminal with 
+; emacs -q --load '/home/user/programming/hp41/EMACS/hp41-mode-new.el' ..
+;  ..blank.. /home/user/programming/hp41/ELPER.rpn   --eval "(view-files-in-windows)"
+;   with hp-mode.el in https://github.com/f4iteightiz/HP41_corner/blob/main/hp41-mode.el
+;
+; Test with cc41 or V41
+; cc41 is from https://github.com/CraigBladow/cc41
+; ./HP41/CC41/cc41 -L /home/user/HP41/ELPER.rpn
+; V41 is from https://hp.giesselink.com/v41.htm
+; create raw files with "hp41uc.exe /t=ELPER.rpn /r /k"
+; or 
+; wine "/home/user/.wine/drive_c/Program Files (x86)/HP-Emulators/HP41UC/hp41uc.exe" /t=ELPER.rpn /r /k
+;
+; preferably, put the flags in following status
+; CF 16  no commands printed
+; SF 15  all output of the command listed (page 9 of HP-IL module)
+;
+; Test V41
+; 1 2 SQRT 1/X XEQ "ELPER" .. 5.402575521 ***  adlaj paper 5.40257552419
+;
+; Test cc41
+; 1 2 SQRT 1/X xeq "ELPER"
+; fix 16 sf 60
+; x: 5.402575524190703  ..
+;
+LBL "ELPER" 
+;                    X   Y   Z   T
+STO 00            ;  a   b
+                  ;  ... a in R00  
+X=0?
+GTO 00
+X<>Y
+X=0?
+GTO 00
+STO 01            ; ... b in R01
+CF 00             ;  clear the flag 00 used in AGM
+XEQ 01            ; "AGM"
+STO 03            ; ... agm in R03
+0
+STO 02
+RCL 00
+X^2
+STO 00            ; a^2
+                  ; R00 content modified
+RCL 01
+X^2
+STO 01            ; b^2
+                  ; R01 content modified
+CF 00
+XEQ 02            ; "MAGM"
+RCL 03
+/
+2
+*
+PI
+*
+RTN
+;
+; MAGM calculation with recursive function
+;   http://www.ams.org/notices/201208/rtx120801094p.pdf
+;
+; under CC BY SA CreativeCommons 4.0 floppy @ https://www.hpmuseum.org
+;
+LBL 02  
+;                   X                      Y                      Z          T
+;                   an                     bn  
++
+2
+/               ; (an+bn)/2=aN
+RCL 01          ;  bn                       aN
+RCL 00          ;  an                       bn                    aN
+RCL 02          ;  zn                       an                    bn         (an+bn)/2
+ST- Y           ;  zn                       an-zn                 bn         aN
+ST- Z           ;  zn                       an-zn                 bn-zn      (an+bn)/2
+X<> Z           ;  bn-zn                    an-zn                 zn         (an+bn)/2
+*               ;  (an-zn)*(bn-zn)          zn                    (an+bn)/2  (an+bn)/2
+SQRT            ;  SQRT((an-zn)*(bn-zn))    zn                    (an+bn)/2  (an+bn)/2
++               ;  (SQRT(an-zn)*(bn-zn))+zn (an+bn)/2             (an+bn)/2  (an+bn)/2
+; update bN in R01
+STO 01          ;  bN                       (an+bn)/2             (an+bn)/2  (an+bn)/2
+LASTX           ;  (SQRT(an-zn)*(bn-zn))    bN                    (an+bn)/2  (an+bn)/2
+RCL 02          ;  zn                       SQRT((an-zn)*(bn-zn)) bN         (a+b)/2
+-
+CHS             ;  zn-(SQRT(an-zn)*(bn-zn)) bN                    (an+bn)/2  (an+bn)/2
+; update zn in R02
+STO 02          ;  zN                       bN                    (an+bn)/2  (an+bn)/2
+RDN             ;  bN                       (an+bn)/2             (an+bn)/2  zN
+ENTER           ;  bN                       bN                    (an+bn)/2  (an+bn)/2
+X<> Z           ;  (an+bn)/2                bN                    bN         (an+bn)/2
+; update an in R00
+STO 00          ;  aN                       bN                    bN         aN
+-
+ABS  
+0.000000001
+X<>Y            ; |aN-bN|                  1.0E-10                bN         aN
+X<Y?
+SF 00
+R^
+R^
+FC?C 00
+GTO 02
+RTN
+;
+; AGM calculation with recursive function
+;   https://de.wikipedia.org/wiki/Arithmetisch-geometrisches_Mittel
+;
+LBL 01           ;  X        Y        Z    T
+;                   a        b
+STO Z            ;  a        b        a
+X<>Y             ;  b        a        a
+ST+ Z            ;  b        a        a+b
+STO T            ;  b        a        a+b b
+*                ;  ba       a+b      b   b
+SQRT             ;  sqrt(ba) a+b      b   b
+R^               ;  b        sqrt(ba) a+b b 
+X=Y?
+SF 00            ; convergence according cal precision achieved
+RDN              ;  sqrt(ba) a+b  b   b
+X<>Y
+2
+/                ; (a+b)/2  SQRT(ab)  b   b
+;                    =a        =b   below..
+;X#Y?            ; using this comparison here will show convergence issues
+FC?C 00
+GTO 01
+RTN
+;
+LBL 00
++
+4
+*
+RTN
+END
